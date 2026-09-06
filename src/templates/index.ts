@@ -81,7 +81,7 @@ export const templates: DesignTemplate[] = [
       },
       background: solid("#ffffff"),
       layout: {
-        variant: "classic",
+        variant: "qr-hero",
         padding: 9,
         qrScale: 0.46,
         gap: 5,
