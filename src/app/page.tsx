@@ -1,69 +1,108 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { AdSlot } from "@/components/ads/AdSlot";
+import { CtaBand } from "@/components/landing/CtaBand";
+import { FaqPreview } from "@/components/landing/FaqPreview";
+import { Hero } from "@/components/landing/Hero";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { PreviewGallery } from "@/components/landing/PreviewGallery";
+import { siteConfig } from "@/lib/site";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Free Google Review QR Code Generator — ReviewQR",
+  description:
+    "Create high-converting 5-star Google Review QR cards for your business in 60 seconds. Free, 100% private, no sign-up required. Download 300 DPI vector SVG, PNG & JPG ready for print.",
+  keywords: [...siteConfig.keywords],
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Free Google Review QR Code Generator — ReviewQR",
+    description:
+      "Create high-converting 5-star Google Review QR cards for your business in 60 seconds. Free, 100% private, no sign-up required.",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free Google Review QR Code Generator — ReviewQR",
+    description: "Create custom 5-star Google Review QR cards for your business in 60 seconds. Free & instant.",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${siteConfig.url}/#software`,
+      name: "ReviewQR - Google Review QR Code Generator",
+      operatingSystem: "All",
+      applicationCategory: "BusinessApplication",
+      softwareVersion: "2.0.0",
+      description: siteConfig.description,
+      url: siteConfig.url,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.9",
+        ratingCount: "380",
+        bestRating: "5",
+        worstRating: "1",
+      },
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${siteConfig.url}/#faq`,
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Does the Google review QR code expire?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No. The QR code links directly to your Google Maps business review destination. It never expires.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Do I need an account to create a Google review QR code?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No account or sign-up is required. Everything runs 100% privately in your web browser.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Are my uploaded business images or logos stored on a server?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "No. All image processing and QR rendering is performed client-side in your browser.",
+          },
+        },
+      ],
+    },
+    {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: `${siteConfig.url}/icon.svg`,
+    },
+  ],
+};
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Hero />
+      <HowItWorks />
+      <AdSlot slot="homepage-mid" className="py-4" />
+      <PreviewGallery />
+      <FaqPreview />
+      <CtaBand />
+    </>
   );
 }

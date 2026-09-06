@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ReviewQR
 
-## Getting Started
+Create a beautiful Google Review QR card for your business. Search a Google Maps place, customize a print-ready design, and download — entirely in the browser. No account. No backend.
 
-First, run the development server:
+## Local setup
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Google Maps (optional but recommended)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Location search and the map picker need a **browser-restricted** Google Maps Platform key.
 
-## Learn More
+1. Create a Google Cloud project.
+2. Enable **Maps JavaScript API** and **Places API (New)**.
+3. Create an API key.
+4. Restrict the key:
+   - Application restriction: HTTP referrers (`http://localhost:3000/*`, your production domain).
+   - API restriction: only the APIs above.
+5. Put the key in `.env.local`:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Never ship an unrestricted key. This app only uses `NEXT_PUBLIC_` values that are safe for a referrer-locked browser key.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Without a key, users can still paste a Google review link and design a card.
 
-## Deploy on Vercel
+## Review destination
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+When a Place ID is selected, the app builds Google’s write-review URL:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`https://search.google.com/local/writereview?placeid=PLACE_ID`
+
+You can also paste an existing Maps / review link.
+
+## Scripts
+
+- `npm run dev` — development
+- `npm run build` — production build
+- `npm run start` — serve the production build
+- `npm run lint` — ESLint
+
+## Deploy
+
+This is a standard Next.js frontend. Deploy to Vercel, Netlify, or Cloudflare Pages. No database or server routes are required for the generator.
+
+Set the same environment variables in the host. Add the production domain to the Google API key referrer list.
+
+## Privacy
+
+Uploads (logo, background) and exports run locally with Canvas APIs. Files are not sent to a ReviewQR server.
