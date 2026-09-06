@@ -87,6 +87,7 @@ function LocationWorkspaceInner() {
       try {
         const place = await fetchPlaceDetails(suggestion.placeId);
         setPlace(place);
+        setResults([]);
       } catch {
         setSearchError("Unable to load locations right now. Please try again.");
       } finally {
@@ -107,6 +108,7 @@ function LocationWorkspaceInner() {
           return;
         }
         setPlace(place);
+        setResults([]);
       } catch {
         setMapError("Unable to load locations right now. Please try again.");
       } finally {
@@ -137,25 +139,29 @@ function LocationWorkspaceInner() {
   const defaultCenter = useMemo(() => ({ lat: 31.5204, lng: 74.3587 }), []);
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-paper">
+    <div className="flex min-h-screen flex-col bg-paper lg:h-dvh lg:overflow-hidden">
       <ToolHeader />
-      <div className="mx-auto grid min-h-0 w-full max-w-[1440px] flex-1 overflow-auto lg:grid-cols-[minmax(320px,26rem)_1fr] lg:overflow-hidden">
-        <div className="contents lg:flex lg:flex-col lg:border-r lg:border-border/80 lg:bg-white">
-          <section className="order-1 border-b border-border/80 bg-white px-5 py-6 sm:px-6 lg:border-b-0">
+      <div className="mx-auto flex flex-1 flex-col min-h-0 w-full max-w-[1440px] overflow-y-auto lg:grid lg:grid-cols-[minmax(340px,26rem)_1fr] lg:overflow-hidden">
+        
+        {/* Sidebar Column */}
+        <div className="flex flex-col bg-white border-b border-border/80 lg:border-b-0 lg:border-r lg:h-full lg:min-h-0 lg:overflow-hidden">
+          
+          {/* Top Search Header - Fixed */}
+          <section className="shrink-0 border-b border-border/80 bg-white p-5 sm:p-6">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-accent-light px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-accent">
               Step 1 of 2
             </div>
-            <h1 className="mt-3 font-[family-name:var(--font-fraunces)] text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            <h1 className="mt-2.5 font-[family-name:var(--font-fraunces)] text-2xl font-bold tracking-tight text-ink sm:text-3xl">
               Select Your Business
             </h1>
-            <p className="mt-1.5 text-xs text-muted">
+            <p className="mt-1 text-xs text-muted">
               Search by business name or address, or tap anywhere on the map.
             </p>
-            <div className="mt-5">
+            <div className="mt-4">
               <Label htmlFor="place-search" className="text-xs font-bold text-ink">
                 Search Google Maps
               </Label>
-              <div className="relative mt-2">
+              <div className="relative mt-1.5">
                 <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
                 <Input
                   id="place-search"
@@ -168,32 +174,29 @@ function LocationWorkspaceInner() {
                 />
               </div>
               {!mapsReady && (
-                <p className="mt-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 text-xs text-amber-800">
+                <p className="mt-2 rounded-lg border border-amber-500/20 bg-amber-500/5 p-2 text-xs text-amber-800">
                   Google Maps search API key is off. You can still paste your review link below to design your card!
                 </p>
               )}
             </div>
           </section>
 
-          <div className="order-2 max-h-60 overflow-y-auto border-b border-border/80 bg-white lg:max-h-none lg:flex-1 lg:border-b-0">
+          {/* Middle Body: Suggestions or Selected Location - Scrollable */}
+          <div className="flex-1 min-h-0 overflow-y-auto bg-white max-h-72 lg:max-h-none border-b border-border/80 lg:border-b-0">
             {searching || loadingPlace ? (
-              <div className="flex items-center justify-center gap-2.5 px-4 py-8 text-sm font-medium text-muted">
+              <div className="flex items-center justify-center gap-2.5 px-4 py-6 text-sm font-medium text-muted">
                 <Loader2 className="h-5 w-5 animate-spin text-accent" /> Searching Google Places…
               </div>
             ) : searchError ? (
-              <p className="px-5 py-6 text-xs leading-relaxed text-accent">{searchError}</p>
-            ) : results.length === 0 ? (
-              <div className="px-5 py-8 text-center text-xs text-muted">
-                {query ? "No matching places found." : "Start typing above to search your Google Maps location."}
-              </div>
-            ) : (
+              <p className="px-5 py-5 text-xs leading-relaxed text-accent">{searchError}</p>
+            ) : results.length > 0 ? (
               <ul className="divide-y divide-border/60">
                 {results.map((result) => (
                   <li key={result.placeId}>
                     <button
                       type="button"
                       onClick={() => selectSuggestion(result)}
-                      className="group flex min-h-16 w-full flex-col items-start px-5 py-3.5 text-left transition-colors hover:bg-accent-light/40"
+                      className="group flex min-h-14 w-full flex-col items-start px-5 py-3 text-left transition-colors hover:bg-accent-light/40"
                     >
                       <span className="text-sm font-semibold text-ink group-hover:text-accent transition-colors">
                         {result.name}
@@ -203,35 +206,60 @@ function LocationWorkspaceInner() {
                   </li>
                 ))}
               </ul>
+            ) : selected ? (
+              <div className="p-5">
+                <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-accent-light/30 p-4 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                      Selected Location
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuery("");
+                        setResults([]);
+                      }}
+                      className="text-xs font-semibold text-accent hover:underline"
+                    >
+                      Search another
+                    </button>
+                  </div>
+                  <p className="mt-2 text-base font-bold text-ink">{selected.name}</p>
+                  <p className="mt-0.5 text-xs text-muted line-clamp-2">{selected.address}</p>
+                  {selected.rating ? (
+                    <div className="mt-2.5 flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                      <span>★ {selected.rating.toFixed(1)}</span>
+                      <span className="text-muted/60">•</span>
+                      <span className="text-muted">{selected.ratingCount ?? 0} Google reviews</span>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : (
+              <div className="px-5 py-6 text-center text-xs text-muted">
+                {query ? "No matching places found." : "Start typing above to search your Google Maps location or tap anywhere on the map."}
+              </div>
             )}
           </div>
 
-          <div className="order-3 space-y-4 bg-white px-5 py-5 sm:px-6 lg:order-3">
-            {selected && (
-              <div className="relative overflow-hidden rounded-2xl border border-accent/30 bg-accent-light/30 p-4.5 shadow-xs">
-                <span className="rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                  Selected Location
-                </span>
-                <p className="mt-2 text-base font-bold text-ink">{selected.name}</p>
-                <p className="mt-0.5 text-xs text-muted">{selected.address}</p>
-                {selected.rating ? (
-                  <div className="mt-2.5 flex items-center gap-1.5 text-xs font-semibold text-amber-700">
-                    <span>★ {selected.rating.toFixed(1)}</span>
-                    <span className="text-muted/60">•</span>
-                    <span className="text-muted">{selected.ratingCount ?? 0} Google reviews</span>
-                  </div>
-                ) : null}
+          {/* Bottom Action Panel - Pinned on Desktop, Sticky on Mobile */}
+          <div className="shrink-0 space-y-3.5 border-t border-border/80 bg-white p-5 sm:p-6 sticky bottom-0 z-20 lg:relative lg:z-auto shadow-lg lg:shadow-none">
+            {selected && results.length > 0 && (
+              <div className="relative overflow-hidden rounded-xl border border-accent/30 bg-accent-light/30 p-3 shadow-xs">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-accent truncate">
+                  Selected: {selected.name}
+                </p>
               </div>
             )}
 
-            <details className="group rounded-2xl border border-border/80 p-4 transition-colors hover:border-ink/30">
-              <summary className="cursor-pointer text-xs font-bold text-ink min-h-10 flex items-center justify-between">
+            <details className="group rounded-2xl border border-border/80 p-3 transition-colors hover:border-ink/30">
+              <summary className="cursor-pointer text-xs font-bold text-ink min-h-8 flex items-center justify-between">
                 <span>Already have a Google review link?</span>
                 <span className="text-xs text-accent transition-transform group-open:rotate-180">▼</span>
               </summary>
-              <div className="mt-3.5 space-y-3 pt-2 border-t border-border/60">
+              <div className="mt-3 space-y-2.5 pt-2 border-t border-border/60">
                 <div>
-                  <Label htmlFor="manual-link" className="text-xs font-medium text-muted">Paste Google Review / Maps URL</Label>
+                  <Label htmlFor="manual-link" className="text-[11px] font-medium text-muted">Paste Google Review / Maps URL</Label>
                   <Input
                     id="manual-link"
                     value={manualLink}
@@ -245,7 +273,7 @@ function LocationWorkspaceInner() {
                   {manualError && <p className="mt-1 text-xs text-accent">{manualError}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="name-only" className="text-xs font-medium text-muted">Business Name (for Card display)</Label>
+                  <Label htmlFor="name-only" className="text-[11px] font-medium text-muted">Business Name (for Card display)</Label>
                   <Input
                     id="name-only"
                     value={nameOnly}
@@ -259,7 +287,7 @@ function LocationWorkspaceInner() {
 
             <Button
               size="lg"
-              className="w-full rounded-2xl py-6 text-sm font-bold shadow-md shadow-ink/10 transition-all hover:scale-[1.01]"
+              className="w-full rounded-2xl py-5 text-sm font-bold shadow-md shadow-ink/10 transition-all hover:scale-[1.01]"
               onClick={confirm}
               disabled={!selected && !manualLink.trim() && !nameOnly.trim()}
             >
@@ -268,55 +296,56 @@ function LocationWorkspaceInner() {
           </div>
         </div>
 
-        <section className="relative order-4 min-h-[220px] bg-paper-2 sm:min-h-[280px] lg:order-none lg:min-h-full">
-        {mapsReady ? (
-          <Map
-            defaultCenter={
-              selected?.lat != null && selected?.lng != null
-                ? { lat: selected.lat, lng: selected.lng }
-                : defaultCenter
-            }
-            defaultZoom={selected ? 16 : 12}
-            mapId={getGoogleMapsMapId()}
-            gestureHandling="greedy"
-            onClick={(event) => {
-              event.stop();
-              if (event.detail.placeId) {
-                void selectSuggestion({
-                  placeId: event.detail.placeId,
-                  name: "Selected location",
-                  address: "",
-                });
-                return;
+        {/* Map Section */}
+        <section className="relative min-h-[300px] bg-paper-2 lg:h-full lg:min-h-0">
+          {mapsReady ? (
+            <Map
+              defaultCenter={
+                selected?.lat != null && selected?.lng != null
+                  ? { lat: selected.lat, lng: selected.lng }
+                  : defaultCenter
               }
-              const latLng = event.detail.latLng;
-              if (!latLng) return;
-              void onMapClick(latLng.lat, latLng.lng);
-            }}
-          >
-            <Recenter place={selected} />
-            {selected?.lat != null && selected?.lng != null && (
-              <AdvancedMarker position={{ lat: selected.lat, lng: selected.lng }} title={selected.name}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-white shadow-lg">
-                  <MapPin className="h-5 w-5" />
-                </div>
-              </AdvancedMarker>
-            )}
-          </Map>
-        ) : (
-          <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">
-            <MapPin className="h-8 w-8 text-muted" />
-            <p className="mt-3 max-w-sm text-sm text-muted">
-              Map search needs a Google Maps API key. You can still paste a review link and design your card.
+              defaultZoom={selected ? 16 : 12}
+              mapId={getGoogleMapsMapId()}
+              gestureHandling="greedy"
+              onClick={(event) => {
+                event.stop();
+                if (event.detail.placeId) {
+                  void selectSuggestion({
+                    placeId: event.detail.placeId,
+                    name: "Selected location",
+                    address: "",
+                  });
+                  return;
+                }
+                const latLng = event.detail.latLng;
+                if (!latLng) return;
+                void onMapClick(latLng.lat, latLng.lng);
+              }}
+            >
+              <Recenter place={selected} />
+              {selected?.lat != null && selected?.lng != null && (
+                <AdvancedMarker position={{ lat: selected.lat, lng: selected.lng }} title={selected.name}>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-white shadow-lg">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                </AdvancedMarker>
+              )}
+            </Map>
+          ) : (
+            <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">
+              <MapPin className="h-8 w-8 text-muted" />
+              <p className="mt-3 max-w-sm text-sm text-muted">
+                Map search needs a Google Maps API key. You can still paste a review link and design your card.
+              </p>
+            </div>
+          )}
+          {mapError && (
+            <p className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/95 px-4 py-3 text-sm shadow">
+              {mapError}
             </p>
-          </div>
-        )}
-        {mapError && (
-          <p className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/95 px-4 py-3 text-sm shadow">
-            {mapError}
-          </p>
-        )}
-      </section>
+          )}
+        </section>
       </div>
     </div>
   );
