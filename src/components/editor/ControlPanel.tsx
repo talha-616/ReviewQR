@@ -1079,6 +1079,32 @@ export function ControlPanel() {
                     </div>
                   </div>
                 )}
+
+                <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                  <div>
+                    <Label htmlFor="scan-badge-toggle" className="text-xs font-bold text-ink cursor-pointer">
+                      "Scan Me!" Callout Badge
+                    </Label>
+                    <p className="text-[11px] text-muted">Show high-visibility pointing pill badge under QR</p>
+                  </div>
+                  <Switch
+                    id="scan-badge-toggle"
+                    checked={!!design.layout.showScanMeBadge}
+                    onCheckedChange={(showScanMeBadge) => patchNested("layout", { showScanMeBadge })}
+                  />
+                </div>
+
+                {design.layout.showScanMeBadge && (
+                  <div className="space-y-2 rounded-2xl border border-border/80 p-3.5 bg-paper-2/30">
+                    <Label className="text-xs font-semibold text-ink">Badge Label</Label>
+                    <Input
+                      value={design.layout.scanMeBadgeLabel || "SCAN ME!"}
+                      onChange={(e) => patchNested("layout", { scanMeBadgeLabel: e.target.value })}
+                      placeholder="e.g. SCAN ME!, TAP OR SCAN"
+                      className="rounded-xl text-xs"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -90,13 +90,31 @@ function StarRow({ color }: { color: string }) {
   );
 }
 
+export function ScanMeBadge({ label = "SCAN ME!", color }: { label?: string; color?: string }) {
+  const bg = color || "#ea4335";
+  return (
+    <div className="relative z-20 inline-flex flex-col items-center -mt-1 mb-1">
+      <div
+        className="w-0 h-0 border-x-[7px] border-x-transparent border-b-[7px] drop-shadow-xs"
+        style={{ borderBottomColor: bg }}
+      />
+      <div
+        className="px-3.5 py-1 rounded-full text-[11px] font-black tracking-widest text-white uppercase shadow-md flex items-center gap-1"
+        style={{ backgroundColor: bg }}
+      >
+        <span>{label}</span>
+      </div>
+    </div>
+  );
+}
+
 function CornerMarks({ color }: { color: string }) {
   return (
-    <svg className="pointer-events-none absolute inset-[3.2%] z-10" viewBox="0 0 100 100" aria-hidden="true">
-      <path d="M8 22 V8 H22" fill="none" stroke={color} strokeWidth="0.7" />
-      <path d="M78 8 H92 V22" fill="none" stroke={color} strokeWidth="0.7" />
-      <path d="M92 78 V92 H78" fill="none" stroke={color} strokeWidth="0.7" />
-      <path d="M22 92 H8 V78" fill="none" stroke={color} strokeWidth="0.7" />
+    <svg className="pointer-events-none absolute inset-[2.2%] z-10" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M4 14 V4 H14" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M86 4 H96 V14" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M96 86 V96 H86" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M14 96 H4 V86" fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -128,10 +146,6 @@ function backgroundLayers(design: DesignState): CSSProperties {
         ? `center, ${background.imageX}% ${background.imageY}%`
         : undefined,
     backgroundRepeat: "no-repeat",
-    filter:
-      background.blur || background.brightness !== 100
-        ? undefined
-        : undefined,
   };
 }
 
@@ -202,6 +216,20 @@ function PatternOverlay({ design }: { design: DesignState }) {
       {pattern === "glass" && (
         <div className="absolute inset-[7%] rounded-[28px] border border-white/50 bg-white/25 backdrop-blur-[2px]" />
       )}
+      {pattern === "google-ring" && (
+        <div
+          className="absolute inset-2.5 rounded-[inherit] border-[7px] opacity-90"
+          style={{
+            borderImage: "linear-gradient(135deg, #ea4335 0%, #fbbc05 33%, #34a853 66%, #4285f4 100%) 1",
+          }}
+        />
+      )}
+      {pattern === "google-corners" && (
+        <>
+          <div className="absolute top-0 inset-x-0 h-9 bg-gradient-to-r from-[#ea4335] via-[#fbbc05] to-[#34a853] opacity-90 [clip-path:polygon(0_0,100%_0,100%_45%,0_100%)]" />
+          <div className="absolute bottom-0 inset-x-0 h-9 bg-gradient-to-r from-[#4285f4] to-[#34a853] opacity-90 [clip-path:polygon(0_55%,100%_0,100%_100%,0_100%)]" />
+        </>
+      )}
       {texture === "cafe" && (
         <div className="absolute inset-x-[8%] top-[6%] h-px bg-current/20" style={{ color: accent }} />
       )}
@@ -249,9 +277,17 @@ export function ReviewCard({ design, className }: ReviewCardProps) {
       ? `blur(${design.background.blur}px) brightness(${design.background.brightness}%)`
       : undefined;
 
+  const rawBusinessName = design.businessName || "Your Business";
+  const textLength = rawBusinessName.length;
+  const fontBaseSize = design.businessNameStyle.size;
+  const computedFontSize =
+    textLength > 20
+      ? Math.max(14, Math.floor(fontBaseSize * (20 / Math.max(20, textLength))))
+      : fontBaseSize;
+
   const nameStyle: CSSProperties = {
     fontFamily: FONT_FAMILY[design.businessNameStyle.font] || FONT_FAMILY.outfit,
-    fontSize: `${design.businessNameStyle.size}px`,
+    fontSize: `${computedFontSize}px`,
     fontWeight: design.businessNameStyle.weight,
     letterSpacing: `${design.businessNameStyle.letterSpacing}px`,
     color: design.businessNameStyle.color || design.colors.text,
@@ -294,8 +330,8 @@ export function ReviewCard({ design, className }: ReviewCardProps) {
   ) : null;
 
   const nameBlock = (
-    <h2 className="max-w-[92%] text-balance" style={nameStyle}>
-      {design.businessName || "Your Business"}
+    <h2 className="max-w-[85%] text-balance px-1 overflow-hidden break-words" style={nameStyle}>
+      {rawBusinessName}
     </h2>
   );
 
@@ -319,15 +355,17 @@ export function ReviewCard({ design, className }: ReviewCardProps) {
     <GoogleCardBadge style={badgeStyle} color={design.colors.text} />
   ) : null;
 
+  const showScanMe = design.layout.showScanMeBadge;
+
   const qrBlock = (
     <div
       className={cn(
-        "relative shrink-0 flex flex-col items-center mx-auto",
+        "relative shrink-0 flex flex-col items-center mx-auto my-auto",
         align === "left" ? "self-start" : align === "right" ? "self-end" : "self-center"
       )}
       style={{ width: `${design.layout.qrScale * 100}%` }}
     >
-      <div className="rounded-[4%] p-[6%]" style={{ background: design.colors.qrBackground }}>
+      <div className="rounded-[5%] p-[6%] shadow-xs" style={{ background: design.colors.qrBackground }}>
         {design.reviewUrl ? (
           <QRCodeView
             value={design.reviewUrl}
@@ -349,6 +387,9 @@ export function ReviewCard({ design, className }: ReviewCardProps) {
             <GoogleGIcon className="h-[70%] w-[70%]" />
           </div>
         </div>
+      )}
+      {showScanMe && (
+        <ScanMeBadge label={design.layout.scanMeBadgeLabel || "SCAN ME!"} color={design.colors.accent} />
       )}
     </div>
   );
@@ -394,26 +435,33 @@ export function ReviewCard({ design, className }: ReviewCardProps) {
       )}
 
       <div
-        className={cn("relative z-20 flex h-full flex-col", items)}
+        className={cn("relative z-20 flex h-full flex-col justify-between items-center", items)}
         style={{
           padding,
           gap: `${design.layout.gap}%`,
           textAlign,
-          justifyContent: qrFirst ? "flex-start" : "space-between",
         }}
       >
         {qrFirst ? (
           <>
-            {design.logo.position === "top" && logo}
-            {showBadge && badgePosition === "top" && googleBadgeBlock}
-            {nameBlock}
-            {showBadge && badgePosition === "above-qr" && googleBadgeBlock}
-            {qrBlock}
-            {showBadge && badgePosition === "below-qr" && googleBadgeBlock}
-            {design.logo.position === "above-qr" && logo}
-            {messageBlock}
-            {design.layout.showStars && <StarRow color={design.colors.accent} />}
-            {ctaBlock}
+            <div className={cn("flex w-full flex-col items-center shrink-0", items)} style={{ gap: `${design.layout.gap * 0.6}%` }}>
+              {design.logo.position === "top" && logo}
+              {showBadge && badgePosition === "top" && googleBadgeBlock}
+              {nameBlock}
+            </div>
+
+            <div className={cn("flex w-full flex-1 flex-col items-center justify-center my-auto", items)}>
+              {showBadge && badgePosition === "above-qr" && googleBadgeBlock}
+              {qrBlock}
+              {showBadge && badgePosition === "below-qr" && googleBadgeBlock}
+              {design.logo.position === "above-qr" && logo}
+            </div>
+
+            <div className={cn("flex w-full flex-col items-center shrink-0", items)} style={{ gap: `${design.layout.gap * 0.6}%` }}>
+              {messageBlock}
+              {design.layout.showStars && <StarRow color={design.colors.accent} />}
+              {ctaBlock}
+            </div>
           </>
         ) : (
           <>
@@ -425,7 +473,7 @@ export function ReviewCard({ design, className }: ReviewCardProps) {
               {design.layout.showStars && <StarRow color={design.colors.accent} />}
               {ctaBeforeQr && ctaBlock}
             </div>
-            <div className={cn("flex w-full flex-1 flex-col justify-end", items)} style={{ gap: `${design.layout.gap * 0.8}%` }}>
+            <div className={cn("flex w-full flex-1 flex-col justify-center items-center my-auto", items)} style={{ gap: `${design.layout.gap * 0.8}%` }}>
               {design.logo.position === "above-qr" && logo}
               {showBadge && badgePosition === "above-qr" && googleBadgeBlock}
               {qrBlock}

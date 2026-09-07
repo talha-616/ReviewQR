@@ -9,7 +9,11 @@ export type TemplateCategory =
   | "Hotel"
   | "Salon"
   | "Healthcare"
-  | "Local Business";
+  | "Local Business"
+  | "Display / Standee"
+  | "Poster / Card"
+  | "Sticker / Badge"
+  | "Vibrant / Modern";
 
 export type QrStyleId =
   | "classic"
@@ -43,7 +47,9 @@ export type AbstractPattern =
   | "geometric"
   | "dots"
   | "grain"
-  | "glass";
+  | "glass"
+  | "google-ring"
+  | "google-corners";
 
 export type BusinessTexture =
   | "none"
@@ -121,6 +127,8 @@ export interface LayoutConfig {
   showGoogleBadge?: boolean;
   googleBadgePosition?: "above-qr" | "top" | "below-qr" | "qr-center";
   googleBadgeStyle?: "multicolor" | "monochrome" | "pill";
+  showScanMeBadge?: boolean;
+  scanMeBadgeLabel?: string;
 }
 
 export interface DesignTemplateConfig {
